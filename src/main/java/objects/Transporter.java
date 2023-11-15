@@ -4,12 +4,16 @@ import java.util.ArrayList;
 
 import main.java.interfaces.CompletionObserver;
 
+/**
+ * To keep track of the completed products. Implements the CompletionObserver to
+ * get notified by the ovens when a product is done.
+ */
 public class Transporter implements CompletionObserver {
 
 	private ArrayList<Product> _completedProducts;
-
+	
 	/**
-	 * @param completedProducts
+	 * Default constructor for Transporter
 	 */
 	public Transporter() {
 		this._completedProducts = new ArrayList<>();
@@ -17,14 +21,17 @@ public class Transporter implements CompletionObserver {
 
 	@Override
 	public void moveToCompleted(Product product) {
-		// TODO Auto-generated method stub
 		_completedProducts.add(product);
-		
+
 	}
+
 	
+	/**
+	 * Display a list of completed Products. 
+	 */
 	public void showAllProducts() {
 		this._completedProducts.forEach(product -> {
-			System.out.println("\t-> " + product );
+			System.out.println("\t-> " + product);
 		});
 	}
 
