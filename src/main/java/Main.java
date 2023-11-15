@@ -29,7 +29,7 @@ public class Main {
 
 		// Initialise the system with 5 initial ovens
 		for (int i = 0; i < 5; i++) {
-			Oven oven = new Oven(i + 1, config, scheduler, transporter);
+			Oven oven = new Oven(i + 1, config, transporter);
 
 			oven.setDaemon(true);
 			oven.start();
@@ -47,19 +47,19 @@ public class Main {
 
 		int choice = 0;
 
+		System.out.println("Welcome to the Burning Service");
+		System.out.println("Please select from one of the options below.");
+		System.out.println("\t1. View All Ovens");
+		System.out.println("\t2. Add Product");
+		System.out.println("\t3. View Completed Products");
+		System.out.println("\t4. Exit");
+		System.out.println("");
+
+		System.out.print("Your choice: ");
+		choice = scanner.nextInt();
+		scanner.nextLine();
+		
 		while (true) {
-			System.out.println("Welcome to the Burning Service");
-			System.out.println("Please select from one of the options below.");
-			System.out.println("\t1. View All Ovens");
-			System.out.println("\t2. Add Product");
-			System.out.println("\t3. View Completed Products");
-			System.out.println("\t4. Exit");
-			System.out.println("");
-
-			System.out.print("Your choice: ");
-			choice = scanner.nextInt();
-			scanner.nextLine();
-
 			switch (choice) {
 			case 1: {
 				showGap();
@@ -78,6 +78,9 @@ public class Main {
 
 				System.out.print("Your choice: ");
 				choice = scanner.nextInt();
+				scanner.nextLine();
+				
+				showGap();
 				break;
 			}
 			case 2:
@@ -107,6 +110,8 @@ public class Main {
 			    System.out.println("Product added to the scheduler.");
 			    System.out.println("----------------------------------------");
 				
+			    choice = 1;
+			    
 				break;
 			case 3: {
 				showGap();
@@ -125,6 +130,9 @@ public class Main {
 
 				System.out.print("Your choice: ");
 				choice = scanner.nextInt();
+				scanner.nextLine();
+				
+				showGap();
 				break;
 			}
 			case 4: {

@@ -3,14 +3,12 @@ package main.java.objects;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import main.java.interfaces.OvenObserver;
-
-public class Scheduler implements OvenObserver {
+public class Scheduler {
 	private ArrayList<Oven> _ovens;
 
 	private Configuration _config;
 	
-	static int productCount = 1;
+	static int product_count = 1;
 
 	public Scheduler(Configuration config) {
 		this._config = config;
@@ -38,14 +36,9 @@ public class Scheduler implements OvenObserver {
 			}
 		});
 		
-		product.set_id(productCount++);
+		product.set_id(product_count++);
 
 		this._ovens.get(0).addToOvenQueue(product);
-	}
-
-	@Override
-	public void updateOven(Oven oven) {
-//		this._ovens.set(this._ovens.indexOf(oven), oven);
 	}
 	
 	public void showAllOvens() {
@@ -65,8 +58,6 @@ public class Scheduler implements OvenObserver {
 		displayList.forEach(oven -> {
 			System.out.println("\t-> " + oven);
 		});
-		
-		System.out.println("" + displayList.get(0).id() + " | " + this._ovens.get(0).id());
 	}
 
 }

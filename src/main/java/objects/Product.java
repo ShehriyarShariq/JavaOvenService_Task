@@ -50,7 +50,7 @@ public class Product {
 
 	@Override
 	public String toString() {
-		return "Product [_id=" + _id + ", _name=" + _name + "]";
+		return "Product [id=" + _id + ", name=" + _name + "]";
 	}
 
 }

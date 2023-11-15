@@ -7,30 +7,75 @@ import main.java.interfaces.OvenObserver;
 public class Oven extends Thread {
 	private int _id;
 	private float _current_temp, _total_time;
+	private String _status = "Waiting"; 
 
 	private Configuration _config;
-	private OvenObserver _scheduler;
 	private Transporter _transporter;
 
-	private long _product_added_to_oven_time;
-
 	private ArrayList<Product> _queue;
+	
 
-	public Oven(int id, Configuration config, OvenObserver scheduler, Transporter transporter) {
+	public Oven(int id, Configuration config, Transporter transporter) {
 		this._id = id;
 		this._config = config;
-		this._scheduler = scheduler;
 		this._transporter = transporter;
 
 		this._queue = new ArrayList<>();
 		this._current_temp = 0;
-		this._product_added_to_oven_time = -1;
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		super.run();
+		while (true) {
+			synchronized (this) {
+				while (this._queue.isEmpty()) {
+					try {
+	                    // If the queue is empty, wait for a notification
+	                    wait();
+	                } catch (InterruptedException e) {
+	                    e.printStackTrace();
+	                }
+				}
+			}
+			
+			
+			Product currentProduct = this._queue.get(0);
+			
+			float temp_ramping_time = this._config.get_oven_temp_ramping_time()
+					* ((int) Math.abs(this._current_temp - currentProduct.get_preheat_temp()));
+			
+			int initialTime = (int) Math.ceil((this._config.get_product_transition_time() + temp_ramping_time / 10));
+			
+			this._status = "Changing Temperature";
+			
+			try {
+				Thread.sleep(initialTime * 1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+			this._status = "Pre-heating";
+			
+			try {
+				Thread.sleep(((int) currentProduct.get_preheat_time()) * 1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+							
+			this._status = "Burning";
+			
+			try {
+				Thread.sleep(((int) currentProduct.get_oven_time()) * 1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+						
+			this._transporter.moveToCompleted(currentProduct);
+			this._queue.remove(0);
+		}
 	}
 
 	public int id() {
@@ -44,19 +89,20 @@ public class Oven extends Thread {
 	public void addToOvenQueue(Product product) {
 		float last_product_temp_diff = this.getOvenTemperatureAtEnd();
 
-		float temp_tamping_time = this._config.get_oven_temp_ramping_time()
+		float temp_ramping_time = this._config.get_oven_temp_ramping_time()
 				* ((int) Math.abs(last_product_temp_diff - product.get_preheat_temp()));
 
 		product.total_time = product.get_preheat_time() + product.get_oven_time()
-				+ this._config.get_product_transition_time() + temp_tamping_time;
+				+ this._config.get_product_transition_time() + temp_ramping_time;
 
 		this._total_time += product.total_time;
 
-		if (this._queue.isEmpty()) {
-			this._product_added_to_oven_time = System.currentTimeMillis();
-		}
-
 		this._queue.add(product);
+		
+		synchronized (this) {
+		    // Notify the waiting thread that a product is available
+		    this.notify();
+		}
 	}
 
 	public Product removeFromOven() {
@@ -100,7 +146,7 @@ public class Oven extends Thread {
 		if (this._queue.isEmpty()) {
 			status = "Idle...";
 		} else {
-			status = "Handling Product \"" + this._queue.get(0).get_name() + "\"";
+			status = this._status + " for Product \"" + this._queue.get(0).get_name() + "\"";
 		}
 		
 		return "Oven " + this._id + " -> Status: " + status;
